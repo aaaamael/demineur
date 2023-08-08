@@ -1,561 +1,69 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <script src="https://cdn.anychart.com/releases/8.11.0/js/anychart-base.min.js"></script>
-  <title>Démineur</title>
-  <style>
-    table {
-      border-collapse: collapse;
-    }
-
-    td {
-      width: 25px;
-      height: 25px;
-      border: 1px solid black;
-      text-align: center;
-      font-weight: bold;
-      cursor: pointer;
-      background-color: white;
-    }
-
-    .revealed {
-      background-color: lightgray;
-    }
-
-    .mine {
-      background-color: red;
-    }
-
-    .flag {
-      background-image: url("flag.png");
-    }
-    
-    .color1 {
-        color: blue
-    }
-    
-    .color2 {
-        color: green
-    }
-    
-    .color3 {
-        color: red
-    }
-    
-    .color4 {
-        color: purple
-    }
-    
-    .color5 {
-        color: yellow
-    }
-    
-    .color6 {
-        color: teal
-    }
-    
-    .color7 {
-        color: darkslategray
-    }
-    
-    .color8 {
-        color: lightblue
-    }
-    .message {
-        color: red
-    }
-  </style>
-</head>
-<body style="background-color:rgba(144, 163, 170, 0.616)";>
-  <button id="soundButton">Mute</button>
-  <div>Temps écoulé: <span id="timer">0</span> secondes</div>
-  <div>Bombes restantes: <span id="bombCounter"></span></div>
-  <h2 class=message id="message"></h2>
-  <div style="display: flex; align-items: flex-start; gap: 100px;">
-    <table id="board"></table>
-    <div>
-      <div id="container1" style="width: 200%; height: 20%;"></div>
-      <div id="container2" style="width: 200%; height: 20%;"></div>
-      <div id="container3" style="width: 200%; height: 20%;"></div>
-    </div>
-  </div>
-  <button id="newGameButton">Nouvelle partie</button>
-  <button id="easyButton">Easy</button>
-  <button id="normalButton">Normal</button>
-  <button id="hardButton">Hard</button>
-  <div>Nombre de clique droit: <span id="nbClickDroit"></span></div>
-  <div>Nombre de clique gauche: <span id="nbClickGauche"></span></div>
-  <div>Nombre de clique simultanés: <span id="nbClickSimult"></span></div>
-  <h3>Statistiques</h3>
-  <h4>Pourcentage victoires: <span id="porWin"></span>%</h4>
-
-
-
-  <script>
-    // Paramètres du jeu
-    var rows = 14;
-    var cols = 18;
-    var mines = 40;
-
-    var board = [];
-    var gameOver = false;
-    var startTime;
-    var timerElement = document.getElementById("timer");
-    var timerInterval;
-    var bombCounterElement = document.getElementById("bombCounter");
-    var message = document.getElementById("message");
-    var flaggedMines = 0;
-    var firstBomb = true;
-    var sonActif = true;
-    var modeJeu = "normal";
-
-    var leftButtonDown = false;
-    var rightButtonDown = false;
-
-    var bruitBombe = new Audio("bombe.mp3");
-    var bruitVictoire = new Audio("yehaw.mp3");
-
-    var preLoad = new Image();
-    preLoad.src = "flag.png";
-
-    //Stats
-    var nbClickDroit = document.getElementById("nbClickDroit");
-    var nbClickGauche = document.getElementById("nbClickGauche");
-    var nbClickSimult = document.getElementById("nbClickSimult");
-
-    if(!localStorage.numWin) {localStorage.numWin = 0;}
-    if(!localStorage.numDefeat) {localStorage.numDefeat = 0;}
-    if(localStorage.porWin) {localStorage.porWin = 0;}
-    if(!localStorage.allWinEasy) {localStorage.allWinEasy = JSON.stringify([]);}
-    if(!localStorage.allWinNormal) {localStorage.allWinNormal = JSON.stringify([]);}
-    if(!localStorage.allWinHard) {localStorage.allWinHard = JSON.stringify([]);}
-    document.getElementById("porWin").innerHTML = Math.round(localStorage.porWin*1000)/10;
-
-    var allWinEasy = JSON.parse(localStorage.allWinEasy);
-    var allWinNormal = JSON.parse(localStorage.allWinNormal);
-    var allWinHard = JSON.parse(localStorage.allWinHard);
-    var temp_time = 0;
-
-    function createBoard() {
-      for (var row = 0; row < rows; row++) {
-        board[row] = [];
-        for (var col = 0; col < cols; col++) {
-          board[row][col] = {
-            mine: false,
-            revealed: false,
-            flagged: false,
-            count: 0
-          };
-        }
+  <head>
+    <title>Line Chart JS</title>
+    <script src="https://cdn.anychart.com/releases/8.11.0/js/anychart-base.min.js"></script>
+    <style type="text/css">      
+      html, body, #container { 
+        width: 100%; height: 100%; margin: 0; padding: 0; 
+      } 
+    </style>
+  </head>
+  <body>  
+    <button onclick="addData(23)">APPUIE</button>
+    <div id="container1"></div>
+    <div id="container2"></div>
+    <div id="container3"></div>
+    <script>
+      function addData(a){
+        data1.append(a);
+        marker1.value(timeEasy.getStat("seriesYAverage"));
       }
 
-      // Placer les mines aléatoirement
-      var placedMines = 0;
-      while (placedMines < mines) {
-        var randomRow = Math.floor(Math.random() * rows);
-        var randomCol = Math.floor(Math.random() * cols);
+      var winEasy = [10,9,8,11,15,5];
+      var winNormal = [45,51,39,38,54,52,72];
+      var winHard = [150,100,121];
 
-        if (!board[randomRow][randomCol].mine) {
-          board[randomRow][randomCol].mine = true;
-          placedMines++;
-        }
-      }
-    }
-
-    function startTimer() {
-      startTime = Date.now();
-      timerInterval = setInterval(updateTimer, 10);
-    }
-
-    function stopTimer() {
-      clearInterval(timerInterval);
-    }
-
-    function updateTimer() {
-      var elapsedTime = Date.now() - startTime;
-      var secondes = Math.floor(elapsedTime/1000);
-      var centiemes = Math.floor(elapsedTime%1000);
-      timerElement.textContent = secondes + "." + centiemes.toString().padStart(3, "0");
-    }
-
-    function revealCell(row, col) {
-      if (gameOver || board[row][col].revealed || board[row][col].flagged) {
-        return;
-      }
-
-      if (!startTime) {
-        startTimer();
-      }
-
-      if (firstBomb && board[row][col].mine) {
-        // Si la première case révélée est une bombe, changer de place avec une case non-bombe
-        var emptyCellFound = false;
-        while (!emptyCellFound) {
-          var randomRow = Math.floor(Math.random() * rows);
-          var randomCol = Math.floor(Math.random() * cols);
-
-          if (!board[randomRow][randomCol].mine) {
-            // Échanger les positions des cellules
-            var tempMine = board[row][col].mine;
-            board[row][col].mine = board[randomRow][randomCol].mine;
-            board[randomRow][randomCol].mine = tempMine;
-
-            emptyCellFound = true;
-          }
-        }
-      }
-
-      board[row][col].revealed = true;
-      var cell = document.getElementById("cell-" + row + "-" + col);
-      cell.classList.add("revealed");
-
-      if (board[row][col].mine) {
-        cell.classList.add("mine");
-        gameOver = true;
-        stopTimer();
-        if(sonActif) bruitBombe.play();
-        message.textContent = "Tu as fais exploser une bombe...";
-        localStorage.numDefeat++;
-        localStorage.porWin = parseFloat(localStorage.numWin) / (parseFloat(localStorage.numDefeat) + parseFloat(localStorage.numWin));
-        temp_time = parseFloat(localStorage.porWin)*1000;
-        temp_time = Math.round(temp_time);
-        temp_time = temp_time/10
-        document.getElementById("porWin").textContent = temp_time;
-      } else {
-        var count = getAdjacentMineCount(row, col);
-        if (count > 0) {
-          cell.textContent = count;
-          switch (count) {
-            case 1:
-              cell.classList.add("color1");
-              break;
-            case 2:
-              cell.classList.add("color2");
-              break;
-            case 3:
-              cell.classList.add("color3");
-              break;
-            case 4:
-              cell.classList.add("color4");
-              break;
-            case 5:
-              cell.classList.add("color5");
-              break;
-            case 6:
-              cell.classList.add("color6");
-              break;
-            case 7:
-              cell.classList.add("color7");
-              break;
-            case 8:
-              cell.classList.add("color8");
-              break;
-            default:
-              break;
-          }
-        } else {
-          // Si la case est vide, révéler les cases adjacentes
-          revealAdjacentCells(row, col);
-        }
-      }
-      firstBomb = false;
-      checkGameEnd();
-    }
-
-    function revealAdjacentCells(row, col) {
-      for (var i = row - 1; i <= row + 1; i++) {
-        for (var j = col - 1; j <= col + 1; j++) {
-          if (i >= 0 && i < rows && j >= 0 && j < cols) {
-            revealCell(i, j);
-          }
-        }
-      }
-    }
-
-    function getAdjacentMineCount(row, col) {
-      var count = 0;
-      for (var i = row - 1; i <= row + 1; i++) {
-        for (var j = col - 1; j <= col + 1; j++) {
-          if (i >= 0 && i < rows && j >= 0 && j < cols && board[i][j].mine) {
-            count++;
-          }
-        }
-      }
-      return count;
-    }
-
-    function getAdjacentFlagsCount(row, col) {
-      var count = 0;
-      for (var i = row - 1; i <= row + 1; i++) {
-        for (var j = col - 1; j <= col + 1; j++) {
-          if (i >= 0 && i < rows && j >= 0 && j < cols && !(i === row && j === col) && board[i][j].flagged) {
-            count++;
-          }
-        }
-      }
-      return count;
-    }
-
-    function toggleFlag(row, col) {
-      if (gameOver || board[row][col].revealed) {
-        return;
-      }
-
-      var cell = document.getElementById("cell-" + row + "-" + col);
-      if (board[row][col].flagged) {
-        board[row][col].flagged = false;
-        cell.classList.remove("flag");
-        bombCounterElement.textContent++;
-      } else {
-        board[row][col].flagged = true;
-        cell.classList.add("flag");
-        bombCounterElement.textContent--;
-      }
-    }
-
-    function initializeGame() {
-      createBoard();
-
-      var boardElement = document.getElementById("board");
-      for (var row = 0; row < rows; row++) {
-       
-        var rowElement = document.createElement("tr");
-        for (var col = 0; col < cols; col++) {
-          var cell = document.createElement("td");
-          cell.id = "cell-" + row + "-" + col;
-          cell.classList.add("cell");
-          cell.addEventListener("mousedown", function(event) {
-            var idParts = this.id.split("-");
-            var row = parseInt(idParts[1]);
-            var col = parseInt(idParts[2]);
-
-            if (event.button === 0 ) { // Clic gauche
-              leftButtonDown = true;
-              revealCell(row, col);
-              nbClickGauche.textContent++;
-            } 
-            if (event.button === 2) { // Clic droit
-              rightButtonDown = true;
-              toggleFlag(row, col);
-              nbClickDroit.textContent++;
-            } 
-            if (leftButtonDown && rightButtonDown){
-                var flaggedCount = getAdjacentFlagsCount(row, col);
-                var mineCount = getAdjacentMineCount(row, col);
-                if (flaggedCount === mineCount) {
-                  revealAdjacentCells(row, col);
-                }
-                nbClickSimult.textContent++;
-                nbClickDroit.textContent--;
-                nbClickGauche.textContent--;
-            }
-          });
-          cell.addEventListener("mouseup", function(event) {
-            if (event.button === 0){
-                leftButtonDown = false;
-            }
-            if (event.button === 2){
-                rightButtonDown = false;
-            }
-          });
-          cell.addEventListener("contextmenu", function(event) {
-            event.preventDefault();
-          });
-          rowElement.appendChild(cell);
-        }
-        boardElement.appendChild(rowElement);
-      }
-    }
-
-    bombCounterElement.textContent = mines;
-    nbClickDroit.textContent = 0;
-    nbClickGauche.textContent = 0;
-    nbClickSimult.textContent = 0;
-
-    var newGameButton = document.getElementById("newGameButton");
-      newGameButton.addEventListener("click", function() {
-        resetGame();
-      });
-    
-    var easyButton = document.getElementById("easyButton");
-    var normalButton = document.getElementById("normalButton");
-    var hardButton = document.getElementById("hardButton");
-      easyButton.addEventListener("click", function() {
-        rows = 8;
-        cols = 10;
-        mines = 10;
-        modeJeu = "easy";
-        resetGame();
-      });
-      normalButton.addEventListener("click", function() {
-        rows = 14;
-        cols = 18;
-        mines = 40;
-        modeJeu = "normal";
-        resetGame();
-      });
-      hardButton.addEventListener("click", function() {
-        rows = 20;
-        cols = 24;
-        mines = 99;
-        modeJeu = "hard";
-        resetGame();
-      });
-    var soundButton = document.getElementById("soundButton");
-      soundButton.addEventListener("click", function(){
-        sonActif = !sonActif;
-        if(soundButton.classList.contains("mine")){
-          soundButton.classList.remove("mine");
-        }
-        else{
-          soundButton.classList.add("mine");
-        };
-      });
-    
-    
-    function checkGameEnd() {
-      var nonMineCellCount = 0;
-      var revealedCellCount = 0;
-
-      for (var row = 0; row < rows; row++) {
-        for (var col = 0; col < cols; col++) {
-          if (!board[row][col].mine) {
-            nonMineCellCount++;
-          }
-
-          if (board[row][col].revealed) {
-            revealedCellCount++;
-          }
-        }
-      }
-
-      if (nonMineCellCount === revealedCellCount && !gameOver) {
-        gameOver = true;
-        stopTimer();
-        if(sonActif) bruitVictoire.play();
-        message.textContent = "Félicitation tu as gagné !";
-        localStorage.numWin++;
-        localStorage.porWin = parseFloat(localStorage.numWin) / (parseFloat(localStorage.numDefeat) + parseFloat(localStorage.numWin));
-        temp_time = parseFloat(localStorage.porWin)*1000;
-        temp_time = Math.round(temp_time);
-        temp_time = temp_time/10
-        document.getElementById("porWin").textContent = temp_time;
-        switch(modeJeu){
-          case "easy":
-            dataEasy.append(parseFloat(timerElement.textContent).toFixed(3));
-            allWinEasy.push(parseFloat(timerElement.textContent).toFixed(3));
-            markerEasy.value(winTimesEasy.getStat("seriesYAverage"));
-            localStorage.allWinEasy = JSON.stringify(allWinEasy);
-            break;
-          case "normal":
-            dataNormal.append(parseFloat(timerElement.textContent).toFixed(3));
-            allWinNormal.push(parseFloat(timerElement.textContent).toFixed(3));
-            markerNormal.value(winTimesNormal.getStat("seriesYAverage"));
-            localStorage.allWinNormal = JSON.stringify(allWinNormal);
-            break;
-          case "hard":
-            dataHard.append(parseFloat(timerElement.textContent).toFixed(3));
-            allWinHard.push(parseFloat(timerElement.textContent).toFixed(3));
-            markerHard.value(winTimesHard.getStat("seriesYAverage"));
-            localStorage.allWinHard = JSON.stringify(allWinHard);
-            break;
-          default:
-            break;
-        }
-      }
-    }
+      // create stock chart
+      var data1 = anychart.data.set(winEasy);
+      var data2 = anychart.data.set(winNormal);
+      var data3 = anychart.data.set(winHard);
 
 
-    function resetGame() {
-        var boardElement = document.getElementById("board");
-        while (boardElement.firstChild) {
-        boardElement.removeChild(boardElement.firstChild);
-        }
-        leftButtonDown = false;
-        rightButtonDown = false;
-        gameOver = false;
-        firstBomb = true;
-        startTime = null;
-        stopTimer();
-        timerElement.textContent = "0";
-        bombCounterElement.textContent = mines;
-        message.textContent = "";
-        nbClickDroit.textContent = 0;
-        nbClickGauche.textContent = 0;
-        nbClickSimult.textContent = 0;
-        createBoard();
-        initializeGame();
-    }
+      chart1 = anychart.area();
+      chart1.title("Temps facile");
+      chart1.crosshair(true);
+      chart1.xScale().mode('continuous');
+      var timeEasy = chart1.splineArea(data1);
+      timeEasy.markers(true);
+      timeEasy.name("Temps");
+      timeEasy.fill("#abebc6 0.5");
+      timeEasy.stroke("#566573");
+      var marker1 = chart1.lineMarker();
+      chart1.container("container1").draw();
 
-    // Graphique
-    dataEasy = anychart.data.set(allWinEasy);
-    dataNormal = anychart.data.set(allWinNormal);
-    dataHard = anychart.data.set(allWinHard);
+      chart2 = anychart.area();
+      chart2.title("Temps normal")
+      chart2.crosshair(true);
+      chart2.xScale().mode('continuous');
+      var timeNormal = chart2.splineArea(data2);
+      timeNormal.markers(true);
+      timeNormal.name("Temps");
+      timeNormal.fill("#aed6f1");
+      timeNormal.stroke("#566573");
+      chart2.container("container2").draw();
 
-    // ChartEasy
-    var chartEasy = anychart.area();
-    chartEasy.title("Temps facile");
-    chartEasy.crosshair(true);
-    chartEasy.xScale().mode('continuous');
+      chart3 = anychart.area();
+      chart3.title("Temps difficile")
+      chart3.crosshair(true);
+      chart3.xScale().mode('continuous');
+      var timeHard = chart3.splineArea(data3);
+      timeHard.markers(true);
+      timeHard.name("Temps");
+      timeHard.fill("#f5b7b1");
+      timeHard.stroke("#566573");
+      chart3.container("container3").draw();
 
-    var yTitle1 = chartEasy.yAxis().title("Temps (s)");
-    yTitle1.enabled(true);
-
-    var winTimesEasy = chartEasy.area(dataEasy);
-    winTimesEasy.markers(true);
-    winTimesEasy.name("Temps");
-    winTimesEasy.fill("#abebc6 0.5");
-    winTimesEasy.stroke("#566573");
-
-    var markerEasy = chartEasy.lineMarker();
-    markerEasy.value(winTimesEasy.getStat("seriesYAverage"));
-
-    chartEasy.container("container1").draw();
-
-
-    // ChartNormal
-    var chartNormal = anychart.area();
-    chartNormal.title("Temps normal");
-    chartNormal.crosshair(true);
-    chartNormal.xScale().mode('continuous');
-
-    var yTitle2 = chartNormal.yAxis().title("Temps (s)");
-    yTitle2.enabled(true);
-
-    var winTimesNormal = chartNormal.area(dataNormal);
-    winTimesNormal.markers(true);
-    winTimesNormal.name("Temps");
-    winTimesNormal.fill("#aed6f1 0.5");
-    winTimesNormal.stroke("#566573");
-
-    var markerNormal = chartNormal.lineMarker();
-    markerNormal.value(winTimesNormal.getStat("seriesYAverage"));
-
-    chartNormal.container("container2").draw();
-
-
-    // ChartHard
-    var chartHard = anychart.area();
-    chartHard.title("Temps difficile");
-    chartHard.crosshair(true);
-    chartHard.xScale().mode('continuous');
-
-    var yTitle3 = chartHard.yAxis().title("Temps (s)");
-    yTitle3.enabled(true);
-
-    var winTimesHard = chartHard.area(dataHard);
-    winTimesHard.markers(true);
-    winTimesHard.name("Temps");
-    winTimesHard.fill("#f5b7b1 0.5");
-    winTimesHard.stroke("#566573");
-
-    var markerHard = chartHard.lineMarker();
-    markerHard.value(winTimesHard.getStat("seriesYAverage"));
-
-    chartHard.container("container3").draw();
-
-
-    initializeGame();
-  </script>
-</body>
+    </script>
+  </body>
 </html>
