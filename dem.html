@@ -1,68 +1,8 @@
 <html>
-  <head>
-    <title>Line Chart JS</title>
-    <script src="https://cdn.anychart.com/releases/8.11.0/js/anychart-base.min.js"></script>
-    <style type="text/css">      
-      html, body, #container { 
-        width: 100%; height: 100%; margin: 0; padding: 0; 
-      } 
-    </style>
-  </head>
-  <body>  
-    <button onclick="addData(23)">APPUIE</button>
-    <div id="container1"></div>
-    <div id="container2"></div>
-    <div id="container3"></div>
-    <script>
-      function addData(a){
-        data1.append(a);
-        marker1.value(timeEasy.getStat("seriesYAverage"));
-      }
-
-      var winEasy = [10,9,8,11,15,5];
-      var winNormal = [45,51,39,38,54,52,72];
-      var winHard = [150,100,121];
-
-      // create stock chart
-      var data1 = anychart.data.set(winEasy);
-      var data2 = anychart.data.set(winNormal);
-      var data3 = anychart.data.set(winHard);
-
-
-      chart1 = anychart.area();
-      chart1.title("Temps facile");
-      chart1.crosshair(true);
-      chart1.xScale().mode('continuous');
-      var timeEasy = chart1.splineArea(data1);
-      timeEasy.markers(true);
-      timeEasy.name("Temps");
-      timeEasy.fill("#abebc6 0.5");
-      timeEasy.stroke("#566573");
-      var marker1 = chart1.lineMarker();
-      chart1.container("container1").draw();
-
-      chart2 = anychart.area();
-      chart2.title("Temps normal")
-      chart2.crosshair(true);
-      chart2.xScale().mode('continuous');
-      var timeNormal = chart2.splineArea(data2);
-      timeNormal.markers(true);
-      timeNormal.name("Temps");
-      timeNormal.fill("#aed6f1");
-      timeNormal.stroke("#566573");
-      chart2.container("container2").draw();
-
-      chart3 = anychart.area();
-      chart3.title("Temps difficile")
-      chart3.crosshair(true);
-      chart3.xScale().mode('continuous');
-      var timeHard = chart3.splineArea(data3);
-      timeHard.markers(true);
-      timeHard.name("Temps");
-      timeHard.fill("#f5b7b1");
-      timeHard.stroke("#566573");
-      chart3.container("container3").draw();
-
-    </script>
-  </body>
+  <button onclick="test()">TEST</button>
+  <script>
+    function test(){
+      alert("Ca marche bien");
+    };
+  </script>
 </html>
