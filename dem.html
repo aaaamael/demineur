@@ -27,7 +27,7 @@
     }
 
     .flag {
-      background-image: url("https://drive.google.com/uc?id=1Gm5_u0fiFQzJT2N6brvwwRNm5YOuzPbg");
+      background-image: url("flag.png");
     }
     
     .color1 {
@@ -68,7 +68,7 @@
 </head>
 <body style="background-color:rgba(144, 163, 170, 0.616)";>
   <button id="soundButton">Mute</button>
-  <div>Temps écoulé: <span id="timer">0.0</span> secondes</div>
+  <div>Temps écoulé: <span id="timer">0</span> secondes</div>
   <div>Bombes restantes: <span id="bombCounter"></span></div>
   <h2 class=message id="message"></h2>
   <div style="display: flex; align-items: flex-start; gap: 100px;">
@@ -112,11 +112,11 @@
     var leftButtonDown = false;
     var rightButtonDown = false;
 
-    var bruitBombe = new Audio("https://drive.google.com/uc?id=1Qe1q93nBQcdIrqZjk7a1lsPyvIrDx9gX");
-    var bruitVictoire = new Audio("https://drive.google.com/uc?id=1z5S-aELsetCIPnPF1zRjw-kKHkTjO1Di");
+    var bruitBombe = new Audio("bombe.mp3");
+    var bruitVictoire = new Audio("yehaw.mp3");
 
     var preLoad = new Image();
-    preLoad.src = "https://drive.google.com/uc?id=1Gm5_u0fiFQzJT2N6brvwwRNm5YOuzPbg";
+    preLoad.src = "flag.png";
 
     //Stats
     var nbClickDroit = document.getElementById("nbClickDroit");
