@@ -19,7 +19,7 @@
     }
 
     .revealed {
-      background-color: lightgray;
+      background-color: rgb(197, 220, 250);
     }
 
     .mine {
@@ -66,13 +66,15 @@
     }
   </style>
 </head>
-<body style="background-color:rgba(144, 163, 170, 0.616)";>
+<body style="background: linear-gradient(to bottom right, rgb(167, 167, 194), rgb(106, 192, 231));">
   <button id="soundButton">Mute</button>
-  Nom <input id="userName" name="Nom" type="text">
+  <label style="font-weight: bold; background-color: rgb(226, 189, 172);">Nom utilisateur: 
+    <input id="userName" name="Nom" type="text" />
+  </label>
   <div>Temps écoulé: <span id="timer">0</span> secondes</div>
   <div>Bombes restantes: <span id="bombCounter"></span></div>
   <h2 class=message id="message"></h2>
-  <div style="display: flex; align-items: flex-start; gap: 100px;">
+  <div style="display: flex; align-items: flex-start; gap: 200px;">
     <table id="board"></table>
     <div>
       <div id="container1" style="width: 200%; height: 20%;"></div>
@@ -143,7 +145,7 @@
 
     if(!localStorage.numWin) {localStorage.numWin = 0;}
     if(!localStorage.numDefeat) {localStorage.numDefeat = 0;}
-    if(localStorage.porWin) {localStorage.porWin = 0;}
+    if(!localStorage.porWin) {localStorage.porWin = 0;}
     if(!localStorage.allWinEasy) {localStorage.allWinEasy = JSON.stringify([]);}
     if(!localStorage.allWinNormal) {localStorage.allWinNormal = JSON.stringify([]);}
     if(!localStorage.allWinHard) {localStorage.allWinHard = JSON.stringify([]);}
