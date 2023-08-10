@@ -27,7 +27,7 @@
     }
 
     .flag {
-      background-image: url("https://drive.google.com/uc?id=1Gm5_u0fiFQzJT2N6brvwwRNm5YOuzPbg");
+      background-image: url("flag.png");
     }
     
     .color1 {
@@ -68,7 +68,8 @@
 </head>
 <body style="background-color:rgba(144, 163, 170, 0.616)";>
   <button id="soundButton">Mute</button>
-  <div>Temps écoulé: <span id="timer">0.0</span> secondes</div>
+  Nom <input id="userName" name="Nom" type="text">
+  <div>Temps écoulé: <span id="timer">0</span> secondes</div>
   <div>Bombes restantes: <span id="bombCounter"></span></div>
   <h2 class=message id="message"></h2>
   <div style="display: flex; align-items: flex-start; gap: 100px;">
@@ -89,7 +90,21 @@
   <h3>Statistiques</h3>
   <h4>Pourcentage victoires: <span id="porWin"></span>%</h4>
 
+  <form 
+  hidden
+  id="form"
+  target="notRedirect"
+  method="POST" 
+  action="https://script.google.com/macros/s/AKfycbyNnfmIZ9wlqTPRTcq9HJ_2aCREkm-Wmbl00MqHW4QkkhHZaeowwmMaEdA7SAcv16AO/exec">
+    <input id="time" name="Time" type="text" placeholder="Time" required>
+    <input id="diff" name="Difficulte" type="text" placeholder="Difficulte" required>
+    <input id="name" name="Name" type="text" placeholder="Name" required>
+  </form>
 
+  <iframe 
+  id="data" width="800" height="400" 
+  src="https://docs.google.com/spreadsheets/d/e/2PACX-1vS6hzCTft4IPMWWnxkaWrzv_S8DWQfIwBZ4uBCJqlUYZsEGgDMdj0E7Ft3yQJcqY9tqp1yU3VJqu_y6/pubhtml?widget=true&amp;headers=false"></iframe>
+  <iframe name="notRedirect" hidden></iframe>
 
   <script>
     // Paramètres du jeu
@@ -112,11 +127,11 @@
     var leftButtonDown = false;
     var rightButtonDown = false;
 
-    var bruitBombe = new Audio("https://drive.google.com/uc?id=1Qe1q93nBQcdIrqZjk7a1lsPyvIrDx9gX");
-    var bruitVictoire = new Audio("https://drive.google.com/uc?id=1z5S-aELsetCIPnPF1zRjw-kKHkTjO1Di");
+    var bruitBombe = new Audio("bombe.mp3");
+    var bruitVictoire = new Audio("yehaw.mp3");
 
     var preLoad = new Image();
-    preLoad.src = "https://drive.google.com/uc?id=1Gm5_u0fiFQzJT2N6brvwwRNm5YOuzPbg";
+    preLoad.src = "flag.png";
 
     //Stats
     var nbClickDroit = document.getElementById("nbClickDroit");
@@ -462,6 +477,10 @@
           default:
             break;
         }
+        document.getElementById('time').value = parseFloat(timerElement.textContent).toFixed(3);
+        document.getElementById('diff').value = modeJeu;
+        document.getElementById('name').value = document.getElementById('userName').value;
+        document.forms["form"].submit();
       }
     }
 
